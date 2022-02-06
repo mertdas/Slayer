@@ -4,7 +4,7 @@
 ![slayer](https://user-images.githubusercontent.com/48562581/152685082-aa292a0e-7683-4612-9105-ed34ec158e21.PNG)
 
 
-Just a AV slayer. Nothing special ;)
+Just an AV slayer. Nothing special ;)
 
 ### USAGE
 git clone https://github.com/mertdas/slayer.git && apt-get install mingw-w64*
