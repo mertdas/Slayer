@@ -32,8 +32,6 @@ def create_template():
 #include <stdio.h>
 #include <iostream>
 #define MULTI_LINE_STRING(a) #a
-#include <windows.h>
-#include <iostream>
 #pragma comment(linker, "/INCREMENTAL:YES")
 #pragma comment(lib, "user32.lib")
 #define WIN32_LEAN_AND_MEAN
