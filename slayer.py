@@ -163,7 +163,7 @@ banner ='''
 
 def main():
     print(banner)
-    print("Additional options: -P for payload, -A for architecture, -p for port number, -i for IP address\n")
+    print("Additional options: -t for payload, -a for architecture, -p for port number, -i for IP address\n")
     parser = argparse.ArgumentParser(description="Slayer: AV undetectable shellcode launcher generator", 
     usage="slayer.py -t payload type -i IP address -p port number -a architecture \nExample: slayer.py -P windows/x64/meterpreter/reverse_tcp -i eth0 interface -p 4444 -a x64\n")
     parser.add_argument('-t', '--type', help="Define connection type eg. reverse_tcp, reverse_https, reverse_http", type=str, default="tcp")
