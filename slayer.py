@@ -37,7 +37,7 @@ def create_template():
 #pragma comment(lib, "user32.lib")
 #define WIN32_LEAN_AND_MEAN
 
-BOOL checkResources() {
+BOOL aynenKardesim() {
   SYSTEM_INFO inf;
   MEMORYSTATUSEX ms;
   DWORD procNum;
@@ -58,8 +58,7 @@ BOOL checkResources() {
 int main(int argc, char** argv)
 {
 	
-	if (checkResources() == false) {
-    printf("possibly launched in sandbox :(\n");
+	if (aynenKardesim() == false) {
     return -2;
     }
     else{
