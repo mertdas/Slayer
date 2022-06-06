@@ -44,7 +44,7 @@ BOOL aynenKardesim() {
   DWORD ram;
 
   GetSystemInfo(&inf);
-  procNum = s.dwNumberOfProcessors;
+  procNum = inf.dwNumberOfProcessors;
   if (procNum < 2) return false;
 
   ms.dwLength = sizeof(ms);
