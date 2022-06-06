@@ -47,7 +47,7 @@ BOOL aynenKardesim() {
   proc = inf.dwNumberOfProcessors;
   if (proc < 2) return false;
 
-  ms.dwLength = sizeof(memStat);
+  memStat.dwLength = sizeof(memStat);
   GlobalMemoryStatusEx(&memStat);
   belleq = memStat.ullTotalPhys / 1024 / 1024 / 1024;
   if (belleq < 2) return false;
