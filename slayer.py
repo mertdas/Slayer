@@ -39,18 +39,18 @@ def create_template():
 
 BOOL aynenKardesim() {
   SYSTEM_INFO inf;
-  MEMORYSTATUSEX ms;
-  DWORD procNum;
-  DWORD ram;
+  MEMORYSTATUSEX memStat;
+  DWORD proc;
+  DWORD belleq;
 
   GetSystemInfo(&inf);
-  procNum = inf.dwNumberOfProcessors;
-  if (procNum < 2) return false;
+  proc = inf.dwNumberOfProcessors;
+  if (proc < 2) return false;
 
-  ms.dwLength = sizeof(ms);
-  GlobalMemoryStatusEx(&ms);
-  ram = ms.ullTotalPhys / 1024 / 1024 / 1024;
-  if (ram < 2) return false;
+  ms.dwLength = sizeof(memStat);
+  GlobalMemoryStatusEx(&memStat);
+  belleq = memStat.ullTotalPhys / 1024 / 1024 / 1024;
+  if (belleq < 2) return false;
 
   return true;
 }
