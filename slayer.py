@@ -62,7 +62,7 @@ BOOL meptAndmerterpreterWasHere(CHAR *app) {
 int main(int argc, char** argv)
 {
 
-	 if(!CheckRunningApp("notepad.exe")) {
+	 if(!meptAndmerterpreterWasHere("svchost.exe")) {
         printf("Notepad.exe not running this system is hostile.\n");
     } else {
 	
