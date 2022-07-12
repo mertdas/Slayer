@@ -17,9 +17,9 @@ python3 slayer.py
 
 or you can specify payload type with -t parameter , ip adress with -i parameter and port with -p parameter.
 
-### Scan Results
+### Scan Results (Updated - > 12/7/2022)
 
-![image](https://user-images.githubusercontent.com/48562581/152684537-d445638f-c73b-46cb-a809-dfaa5a65b334.png)
+![image](https://user-images.githubusercontent.com/48562581/178404840-da2f05d8-b49c-4a7a-ab6a-50be3c4244be.png)
 
 # Credit
 
