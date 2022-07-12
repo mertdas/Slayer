@@ -20,3 +20,8 @@ or you can specify payload type with -t parameter , ip adress with -i parameter 
 ### Scan Results
 
 ![image](https://user-images.githubusercontent.com/48562581/152684537-d445638f-c73b-46cb-a809-dfaa5a65b334.png)
+
+# Credit
+
+Thanks to Mr.Un1k0d3r for allowing us to use the sandbox evasion code
+https://mr.un1k0d3r.com/portal/index.php
