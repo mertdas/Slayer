@@ -47,24 +47,10 @@ def create_template():
 
 #define UNICODE
 
-BOOL Isdomainjoined(LPCWSTR domain) {
-    WCHAR buffer[MAX_BUFFER_SIZE];
-    BOOL bResult = FALSE;
-    DWORD dwSize = MAX_BUFFER_SIZE;
-    WCHAR* position = wcsstr(buffer, L"\\");
-
-    position[0] = 0x00;
-    if (wcscmp(domain, buffer) == 0) {
-        bResult = TRUE;
-    }
-    return bResult;
-}
 
 int main(int argc, char** argv)
 {
-    if (!Isdomainjoined(L"//CHANGETHISFORDOMAIN")) {
-    }
-    else {
+    
 
         HANDLE process = GetCurrentProcess();
         MODULEINFO modi = {};
@@ -114,7 +100,6 @@ int main(int argc, char** argv)
         return 0;
     }
 
-}
 
 
 ''')
