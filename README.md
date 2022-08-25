@@ -11,8 +11,7 @@ Just an AV slayer. Nothing special ;)
 ### USAGE
 git clone https://github.com/mertdas/slayer.git && apt-get install mingw-w64*<br>
 cd Slayer<br>
-python3 slayer.py -d YOUR DOMAIN NAME <br>
-ex: python3 slayer.py -d OLYMPOS
+python3 slayer.py
 
 ![slayer2](https://user-images.githubusercontent.com/48562581/172180422-7ce15153-a184-477a-839c-d51094bb61f6.png)
 
