@@ -28,3 +28,7 @@ or you can specify payload type with -t parameter , ip adress with -i parameter 
 
 Thanks to spotheplanet for awesome technique and article
 https://www.ired.team/offensive-security/defense-evasion/how-to-unhook-a-dll-using-c++
+
+# TODO
+[+] Low rate dll generation for dll sideloading
+
